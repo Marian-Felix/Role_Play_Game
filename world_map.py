@@ -1,7 +1,7 @@
 import time
 from characters import *
 from items import *
-
+# todo build battle mechaanism + menu
 
 class Vertex:
     def __init__(self, value, description="Nothing to see ...", engagement=None):
