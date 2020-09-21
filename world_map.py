@@ -1,7 +1,7 @@
+from random import randint
 import time
-from characters import *
-from items import *
-# todo build battle mechaanism + menu
+import characters as c
+import items as i
 
 
 class Vertex:
@@ -45,7 +45,7 @@ class Graph:
                   "Hint: Examine the situation before you take action.\n".format(hero_name))
             confirm()
             global hero
-            hero = Hero(hero_name)
+            hero = c.Hero(hero_name)
             current_location = "Village center"
             self.current_location_global = "Village center"
             print("\nYou find yourself at the {0}. \nGood luck, adventurer!".format(current_location))
@@ -217,7 +217,10 @@ def print_inventory():
 
 
 def confirm():
-    if input("\n*** Press Enter to continue ***"):
+    text = input("\n*** Press Enter to continue ***")
+    if text:
+        print(50*"-")
+        print()
         return
 
 
@@ -226,13 +229,15 @@ def time_delay_txt(text):
 
 
 def battle(opponent):
-    print("\n",16*"*"," BATTLE ", 16*"*", "\n {} vs. {}".format(hero, opponent))
+    print("\n",35*"*"," BATTLE ", 35*"*", "\n {} vs. {}".format(hero, opponent))
     confirm()
     while True:
         print()
-        battle_choice = check_int_input([1,2,3,4], "*** Battle! ***\nYou:   {}\nEnemy: {}\n(1) Attack\n(2) Risk Attack\n(3) Use Potion\n(4) Retreat".format(hero.return_stats(), opponent.return_stats()))
+        battle_choice = check_int_input([1,2,3,4], "*** Battle! ***\nYou:   {}\nEnemy: {}\n(1) Attack\n(2) Risk Attack"
+                                                   "\n(3) Use Potion\n(4) Retreat".format(hero.return_stats(),
+                                                                                          opponent.return_stats()))
         if battle_choice == 1:
-            hero.attack((opponent))
+            hero.attack(opponent)
         if battle_choice == 2:
             hero.risk_attack(opponent)
         if battle_choice == 3:
@@ -241,12 +246,12 @@ def battle(opponent):
             print("{} is trying to escape battle!".format(hero.name))
             time.sleep(0.6)
             if randint(0,10) in range(0,8):
-                print("Phew! You retreated succesfully.")
+                print("Phew! You retreated successfully.")
                 return
             else:
                 print("No Chance to retreat!")
         if opponent.is_knocked_out:
-            print("{} is defeated!".format(opponent.name))
+            print("\n{} is defeated!".format(opponent.name))
             confirm()
             return
         opponent_turn(opponent)
@@ -277,6 +282,10 @@ def hero_dies():
     hero.replenish()
     world_map.explore_world()
 
+def print_quest(text):
+    print(text)
+    time_delay_txt(text)
+
 
 class Location_Temple():
     def interact(self):
@@ -294,30 +303,28 @@ class Location_Sherrif():
     def interact(self):
         # time.sleep(0.4)
         if self.quest == 0 and self.nr_replies == 0:
-            self.text = "\nHello, stranger ... you see, I don't have much time right now. Wait for a moment, will you?"
-            print(self.text)
-            time_delay_txt(self.text)
+            self.text = "\n'Hello, stranger ... you see, I don't have much time right now. Wait for a moment, " \
+                        "will you?'"
+            print_quest(self.text)
             self.nr_replies = 1
             confirm()
             return
         if self.quest == 0 and self.nr_replies == 1:
-            self.text = "\nOK. You townsfolk always come here and get killed for no reason but your own stupidity. " \
+            self.text = "\n'OK. You townsfolk always come here and get killed for no reason but your own stupidity. " \
                         "\nThis is the last town before the lost mountains, so just don't go any further. \n" \
-                        "I have enough problems without you already."
-            print(self.text)
-            time_delay_txt(self.text)
+                        "I have enough problems without you already.'"
+            print_quest(self.text)
             self.nr_replies = 2
             confirm()
             return
         if self.quest == 0 and self.nr_replies == 2:
-            self.text = "\nAlright!! You are one of the stubborn kind, aren't you? What's your name? {}? I'll tell you " \
+            self.text = "\n'Alright!! You are one of the stubborn kind, aren't you? What's your name? {}? I'll tell you " \
                         "what.\nYou are lost or bored or whatever, and I keep losing men on the road to the north \n"\
                         "and I don't know why. Tell me what's going on in the Dark Forest and I will reward you." \
                         "\n\n Sigh ... you're completely unarmed! Here, take these ... " \
-                        "the last owner has no more use for it.\n".format(hero.name)
-            print(self.text)
-            time_delay_txt(self.text)
-            self.replies = 0
+                        "the last owner has no more use for it'.\n".format(hero.name)
+            print_quest(self.text)
+            self.nr_replies = 0
             self.quest = 1
             hero.put_in_inventory(club1)
             hero.put_in_inventory(tunica1)
@@ -325,6 +332,20 @@ class Location_Sherrif():
             print("\nHint: You can manage your items in the Hero menu! Try to equip your new items.")
             confirm()
             return
+        if self.quest == 1 and self.nr_replies == 0:
+            self.text = "\n'Come back if you know more about what's going on in the Dark Forest!'"
+            print_quest(self.text)
+            confirm()
+            return
+        if self.quest == 1 and self.nr_replies == 1:
+            self.text = "\n'You went to the forest and came back alive? Not bad.\nWhat do you say? A cult? The big " \
+                        "Tree ... the Evergreen Tree? This is where our ancestors used to bury there dead ...\n It was " \
+                        "BURNING? I have to think about this. Take this and - please get back to me.'"
+            print_quest(self.text)
+            print()
+            hero.put_in_inventory("potion")
+            confirm()
+            self.nr_replies = 2
 
 
 class Location_LowerRoad():
@@ -333,31 +354,94 @@ class Location_LowerRoad():
         self.nr_replies = 0
         self.text = ""
 
-# nächstes Ziel: Kämpfe programmieren!
     def interact(self):
         if self.quest == 1 and self.nr_replies == 0:
             self.text = "\nYou are searching the surroundings for clues.\n" \
-                        "Out of nowhere, a bandit is charging towards you!"
-            print(self.text)
-            time_delay_txt(self.text)
-            self.nr_replies = 1
+                        "Out of nowhere, some guy is charging towards you!"
+            print_quest(self.text)
             battle(banditLvl1_1)
-            print("\nYou found some useful things in your opponent's pockets!")
+            self.nr_replies = 1
+            return
+        if self.quest == 1 and self.nr_replies == 1:
+            self.text = "\nThe bandit you killed lies before you. " \
+                        "You found some useful things in your opponent's pockets!"
+            print(self.text)
             hero.put_in_inventory("potion")
             hero.put_in_inventory(tunica2)
+            self.nr_replies = 2
             confirm()
+            print("\nYou defended yourself, but you're none the wiser about this place. "
+                  "\nYou better follow your nose - is there a fire somewhere near?")
+            confirm()
+            return
+        # if self.quest == 1 and self.nr_replies == 2:
+        #     self.text = ""
+        #     print(self.text)
+        #     confirm()
+        #     return
+
+
+class Location_BurningTree():
+    def __init__(self):
+        self.quest = 1
+        self.nr_replies = 0
+        self.text = ""
+
+    def interact(self):
+        if self.quest == 1 and self.nr_replies == 0:
+            self.text = "\nYou are trying to get a closer look of what's happening at the clearing, but you blow your" \
+                        " cover. \nYou're so clumsy!!\nBeing startled, most of the cult members run from you into " \
+                        "the forest."
+            print(self.text)
+            time_delay_txt(self.text)
+            confirm()
+            print("\nTwo of the bigger guys don't seem to like you intruding. You can surely take them - one by one!")
+            confirm()
+            battle(cultistlvl1_1)
+            print("\nAs the first one tumbles to the ground, the other cultist is charging at you!")
+            confirm()
+            battle(cultistlvl1_2)
+            self.nr_replies = 1
+            return
+        if self.quest == 1 and self.nr_replies == 1:
+            self.text = "\n'Those people are crazy!', you're whispering as you are catching your breath. " \
+                        "\nYou examine the bodies ... the Sherrif might want to know of this."
+            print(self.text)
+            hero.put_in_inventory(rags2)
+            hero.put_in_inventory((club2))
+            confirm()
+            self.nr_replies = 2
+            return
+        if self.quest ==1 and self.nr_replies == 2:
+            print("\nThe Sherrif might be interested to hear what happened here ...")
+            confirm()
+            if location_sherrif.quest == 1 and location_sherrif.nr_replies == 0:
+                location_sherrif.nr_replies = 1
             return
 
 
 
-# important instances
-npc_temple = Location_Temple()
-npc_sherrif = Location_Sherrif()
-club1 = Spiked_club()
-tunica1 = Leather_tunica()
-tunica2 = Leather_tunica()
-lowerRoad = Location_LowerRoad()
-banditLvl1_1 = Bandit(1)
+# instances by location
+# village temple
+location_temple = Location_Temple()
+# village sherrif
+location_sherrif = Location_Sherrif()
+club1 = i.Spiked_club()
+tunica1 = i.Leather_tunica()
+
+# Dark Forest: Lower Road
+location_lowerRoad = Location_LowerRoad()
+banditLvl1_1 = c.Bandit(1)
+tunica2 = i.Leather_tunica()
+
+# Dark Forest: Burning Tree
+location_burningTree = Location_BurningTree()
+cultistlvl1_1 = c.Cultist(1)
+cultistlvl1_2 = c.Cultist(1)
+club2 = i.Spiked_club()
+rags2 = i.Woolen_rags()
+
+
 
 # instantiate world map as graph
 world_map = Graph()
@@ -373,17 +457,22 @@ village = Vertex("Village center", "You're standing at the main square of this l
 marketplace = Vertex("Village: Marketplace", "A bustling, colorful marketplace with traders and craftsmen shouting and "
                                              "haggling.\nThis seems like a nice place for a bargain.")
 temple = Vertex("Village: Temple", "You grasp a glimpse of the sanctity of this place, as your eyes wander \nover the "
-                                   "ancient marble sculptures. \nThe waters here are said to have healing powers.", lambda: npc_temple.interact())
-sherrif = Vertex('Village: Sherrif\'s Office', "The sherrif looks busy. Law and order lie in his hands.", lambda: npc_sherrif.interact())
+                                   "ancient marble sculptures. \nThe waters here are said to have healing powers.", lambda: location_temple.interact())
+sherrif = Vertex('Village: Sherrif\'s Office', "The sherrif looks busy. Law and order lie in his hands.", lambda: location_sherrif.interact())
 # level1
 df_lowerRoad = Vertex("Dark Forest: Lower Road", "Leaves crunch underfoot, while the sound of birds chirping dies away"
                                                  " with every step that leads you \ndeeper under the thickening "
                                                  "canopy. A scent of burned wood lies in the air."
                                                  " \nBut it's not wood alone "
-                                                 "... you know this ... hair, fingernails?\nFlesh?", lambda: lowerRoad.interact())
+                                                 "... you know this ... hair, fingernails?\nFlesh?", lambda: location_lowerRoad.interact())
 df_cave = Vertex("Dark Forest: Spooky Cave")
 df_altar = Vertex("Dark Forest: Altar")
-df_burningTree = Vertex("Dark Forest: Burning Tree")
+df_burningTree = Vertex("Dark Forest: Burning Tree", "As you follow the scent of smoke through the undergrowth, you "
+                                                     "reach a clearing: \nA giant tree is bursting into flames. \nFrom "
+                                                     "your hideout, you watch a group of people in shabby robes "
+                                                     "chanting a strange melody in front of the fire. "
+                                                     "\nThey look like trouble, although they don't seem to be armed"
+                                                     " heavily.", lambda: location_burningTree.interact())
 # level2
 df_upperRoad = Vertex("Dark Forest: Upper Road")
 df_encampment = Vertex("Dark Forest: Encampment")

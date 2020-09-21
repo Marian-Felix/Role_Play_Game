@@ -131,17 +131,17 @@ class Health_crystal(Artefact):
 
 
 #### potions
-## child-classes potions
-class Potion:
-    type = "potion"
-    inventory_sort = 4
-
-    def __repr__(self):
-        return self.name
-
-
-class potion(Potion):
-
-    def __init__(self):
-        self.name = "Potion"
-    ##potion should just replenish the health completely.
+# ## child-classes potions
+# class Potion:
+#     type = "potion"
+#     inventory_sort = 4
+#
+#     def __repr__(self):
+#         return self.name
+#
+#
+# class potion(Potion):
+#
+#     def __init__(self):
+#         self.name = "Potion"
+#     ##potion should just replenish the health completely.

@@ -6,6 +6,8 @@ import time
 
 def confirm():
     if input("\n*** Press Enter to continue ***"):
+        print()
+        print()
         return
 
 
@@ -71,7 +73,7 @@ class Hero(Character):
         self.current_health = 30
         self.attack_dmg_bonus = 0
         self.defense = 0 + self.get_armor_defense()
-        self.attack_dmg = 5 + self.attack_dmg_bonus + self.get_weapon_damage()
+        self.attack_dmg = 50 + self.attack_dmg_bonus + self.get_weapon_damage()
         self.inventory = []
         self.is_knocked_out = False
 
@@ -215,12 +217,26 @@ class Bandit(Character):
     def __init__(self, level):
         self.name = "Bandit"
         self.level = level
-        self.max_health = randint(25, 35) * level
+        self.max_health = randint(27, 32) * level
         self.current_health = self.max_health
-        self.attack_dmg = randint(2, 4) * level
-        self.defense = randint(0, 2) * level
+        self.attack_dmg = randint(5, 11) * level
+        self.defense = randint(2, 6) * level
         self.is_knocked_out = False
 
     def __repr__(self):
         return "Bandit, level {} (HP {}/{}, A {}, D {})".format(self.level, self.current_health, self.max_health,
+                                                                self.attack_dmg, self.defense)
+
+class Cultist(Character):
+    def __init__(self, level):
+        self.name = "Cultist"
+        self.level = level
+        self.max_health = randint(20, 28) * level
+        self.current_health = self.max_health
+        self.attack_dmg = randint(4, 8) * level
+        self.defense = randint(0, 2) * level
+        self.is_knocked_out = False
+
+    def __repr__(self):
+        return "{}, level {} (HP {}/{}, A {}, D {})".format(self.name, self.level, self.current_health, self.max_health,
                                                                 self.attack_dmg, self.defense)
