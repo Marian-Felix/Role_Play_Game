@@ -1,5 +1,6 @@
 from random import randint
 from items import *
+import time
 
 
 class Character:
@@ -14,7 +15,24 @@ class Character:
         print("{} damage to {}. (HP: {}/{})\n".format(dam, self.name, self.current_health, self.max_health))
 
     def attack(self, opponent):
-        opponent.lose_health(self.attack_dmg + (randint(0, 40) / 100) * self.attack_dmg)
+        print("{} is attacking {}!".format(self.name, opponent.name))
+        time.sleep(0.04)
+        random_number = randint(1, 100)
+        if random_number in range(1,80):
+            opponent.lose_health(self.attack_dmg + (randint(0, 40) / 100) * self.attack_dmg)
+            print("{} landed a hit!".format(self.name))
+        else:
+            print("{} missed with the attack ...".format(self.name))
+
+    def risk_attack(self, opponent):
+        print("{} tries a risky attack on {} for double damage!".format(self.name, opponent.name))
+        time.sleep(0.04)
+        random_number = randint(1, 101)
+        if random_number in range(1, 41):
+            opponent.lose_health(2 * self.attack_dmg + (randint(0, 40) / 100) * self.attack_dmg) # oder 2* kompletter Schaden? Ist wrsl zu stark
+            print("Ouch! {} landed a hit!".format(self.name))
+        else:
+            print("{} missed with the attack ...".format(self.name))
 
 
 def get_item_sort_type(item):

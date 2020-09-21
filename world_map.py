@@ -85,20 +85,11 @@ class Graph:
 
 def explore_site(current_location):
     while True:
-        valid_choices = [1, 2, 3, 4]
-        exp_choice = None
-        time.sleep(0.4)
-        try:
-            exp_choice = int(input("\n*** Main menu ***\n(1) Travel\n(2) Examine\n(3) Interact\n(4) Hero menu"))
-        except ValueError:
-            print("\n*** Wrong input. Enter a valid number. ***")
-        if exp_choice and exp_choice not in valid_choices:
-            print("\n*** Wrong input. Enter a valid number. ***")
+        exp_choice = check_int_input([1,2,3,4], "\n*** Main menu ***\n(1) Travel\n(2) Examine\n(3) Interact\n(4) Hero menu")
         if exp_choice == 1:
             return
         if exp_choice == 2:
             print("\n", current_location.description)
-            # time.sleep(0.035*len(current_location.description))
             if input("\n*** Press Enter to continue ***"):
                 continue
         if exp_choice == 3:
@@ -126,23 +117,26 @@ def print_map():
           "\\              |                        \\\n Marketplace                             Cave    "
           "Altar       Encampment                    Rolling Hills\n                                      "
           "                                                       /       \\\n                            "
-          "                                               Lighthouse - - Cliff      Spring\n".format(world_map.current_location_global), 113 * "*",
-          "\n")
+          "                                               Lighthouse - - Cliff      Spring\n"
+          .format(world_map.current_location_global), 113 * "*", "\n")
+
+
+def check_int_input(valid_choices, terminal_prompt):
+    while True:
+        try:
+            hero_choice = int(input(terminal_prompt))
+            return hero_choice
+            if hero_choice not in valid_choices:
+                raise ValueError
+        except ValueError:
+            print("\n*** Wrong input. Enter a valid number. ***")
 
 
 def hero_menu_choices():
     while True:
         print(hero)
-        while True:
-            valid_choices = [1, 2, 3, 4, 5]
-            try:
-                hero_choice = int(input("\n*** Hero ***\n(1) Equip Item\n(2) Unequip Item\n(3)"
-                                        " Use Potion\n(4) Show Map\n(5) Return\n"))
-                if hero_choice not in valid_choices:
-                    raise ValueError
-                break
-            except ValueError:
-                print("\n*** Wrong input. Enter a valid number. ***")
+        hero_choice = check_int_input([1,2,3,4,5], "\n*** Hero ***\n(1) Equip Item\n(2) Unequip Item\n(3) Use Potion"
+                                                   "\n(4) Show Map\n(5) Return\n")
         if hero_choice == 1:
             if hero.inventory:
                 while True:
@@ -238,6 +232,11 @@ def time_delay_txt(text):
 
 def battle(opponent):
     print("\n",16*"*"," BATTLE ", 16*"*", "\n {}".format(opponent))
+    while True:
+        battle_choice = check_int_input([1,2,3,4], "*** Battle! ***")
+        if battle_choice == 1:
+            hero.attack((opponent))
+
     # Neues Untermenü:
     # "*** Battle! ***"
     # (1) Attack
