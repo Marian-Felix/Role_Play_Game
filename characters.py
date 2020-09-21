@@ -1,9 +1,18 @@
 from random import randint
 from items import *
+# from world_map import confirm
 import time
 
 
+def confirm():
+    if input("\n*** Press Enter to continue ***"):
+        return
+
+
 class Character:
+    def return_stats(self):
+        return "HP {}/{}, A {}, D {}".format(self.current_health, self.max_health, self.attack_dmg, self.defense)
+
     def lose_health(self, damage):
         if self.defense > round(damage):
             dam = 0
@@ -12,27 +21,31 @@ class Character:
         self.current_health -= dam
         if self.current_health <= 0:
             self.current_health = 0
-        print("{} damage to {}. (HP: {}/{})\n".format(dam, self.name, self.current_health, self.max_health))
+        print("\n{} damage to {}. (HP: {}/{})".format(dam, self.name, self.current_health, self.max_health))
+        confirm()
+        if self.current_health == 0:
+            self.is_knocked_out = True
 
     def attack(self, opponent):
-        print("{} is attacking {}!".format(self.name, opponent.name))
-        time.sleep(0.04)
+        print("\n{} is attacking {}!".format(self.name, opponent.name), end="")
+        time.sleep(0.4)
         random_number = randint(1, 100)
         if random_number in range(1,80):
-            opponent.lose_health(self.attack_dmg + (randint(0, 40) / 100) * self.attack_dmg)
-            print("{} landed a hit!".format(self.name))
+            opponent.lose_health(self.attack_dmg + (randint(0, 35) / 100) * self.attack_dmg)
+            # print("{} landed a hit!".format(self.name))
         else:
-            print("{} missed with the attack ...".format(self.name))
+            print("\n{} missed with the attack ...".format(self.name))
+            confirm()
 
     def risk_attack(self, opponent):
-        print("{} tries a risky attack on {} for double damage!".format(self.name, opponent.name))
-        time.sleep(0.04)
+        print("\n{} is trying a Risk Attack for 2x damage!".format(self.name), end="")
+        time.sleep(0.4)
         random_number = randint(1, 101)
-        if random_number in range(1, 41):
-            opponent.lose_health(2 * self.attack_dmg + (randint(0, 40) / 100) * self.attack_dmg) # oder 2* kompletter Schaden? Ist wrsl zu stark
-            print("Ouch! {} landed a hit!".format(self.name))
+        if random_number in range(1, 51):
+            opponent.lose_health(2 * self.attack_dmg + (randint(0, 35) / 100) * self.attack_dmg) # oder 2* kompletter Schaden? Ist wrsl zu stark
         else:
-            print("{} missed with the attack ...".format(self.name))
+            print("\n{} missed with the attack ...".format(self.name))
+            confirm()
 
 
 def get_item_sort_type(item):
@@ -60,15 +73,20 @@ class Hero(Character):
         self.defense = 0 + self.get_armor_defense()
         self.attack_dmg = 5 + self.attack_dmg_bonus + self.get_weapon_damage()
         self.inventory = []
+        self.is_knocked_out = False
+
 
     # __repr__ wandelt das items-dictionary erst in eine Liste um (List comprehension),
     # die Elemente der Liste werden anschließend durch .join() in einen Sting umgewandelt
     def __repr__(self):
-        return "{a}\n Hero '{b}', level 1 (HP {c}/{d}, A {e}, D {f})\n{g}\n\t{h}\n\nInventory: {i}\n{j}".format(
-            a="\n" + 45 * "*", b=self.name, c=self.current_health, d=self.max_health, e=self.attack_dmg, f=self.defense,
-            g=45 * "*", h='\n\t'.join(
-                [str(elem) for elem in ["{}: {}".format(key.title(), self.items[key]) for key in self.items.keys()]]),
-            i=self.inventory, j=45 * "*")
+        return "{}, level {} (HP {}/{}, A {}, D {})".format(self.name, self.level, self.current_health, self.max_health, self.attack_dmg, self.defense)
+
+    def print_stats(self):
+        print("{a}\n Hero '{b}', level 1 (HP {c}/{d}, A {e}, D {f})\n{g}\n\t{h}\n\nInventory: {i}\n{j}"
+              .format(a="\n" + 45 * "*", b=self.name, c=self.current_health, d=self.max_health, e=self.attack_dmg,
+                      f=self.defense, g=45 * "*",
+                      h='\n\t'.join([str(elem) for elem in ["{}: {}".format(key.title(), self.items[key])
+                                                            for key in self.items.keys()]]), i=self.inventory, j=45 * "*"))
 
     def get_weapon_damage(self):
         try:
@@ -142,13 +160,31 @@ class Hero(Character):
         self.put_in_inventory(unequip_item)
 
     def put_in_inventory(self, item):
-        self.inventory.append(item)
-        self.inventory.sort(key=get_item_sort_type)
+        if item == "potion":
+            self.items["potion"] += 1
+        else:
+            self.inventory.append(item)
+            self.inventory.sort(key=get_item_sort_type)
         print("Added to inventory: '{}'".format(item))
 
     def put_out_inventory(self, item_index):
         item_lost = self.inventory.pop(item_index)
         print("Lost '{}'".format(item_lost))
+
+    def use_potion(self):
+        if self.items["potion"] < 1:
+            print("\nYou don't have any potions!")
+            confirm()
+            return
+        elif self.current_health == self.max_health:
+            print("\nYou are already at full health!")
+            confirm()
+            return
+        elif self.items["potion"] >= 1:
+            print("\nYou used a potion.", end="")
+            self.items["potion"] -= 1
+            self.replenish()
+            confirm()
 
     def gain_experience(self, experience_gained):
         self.experience += experience_gained
@@ -183,6 +219,7 @@ class Bandit(Character):
         self.current_health = self.max_health
         self.attack_dmg = randint(2, 4) * level
         self.defense = randint(0, 2) * level
+        self.is_knocked_out = False
 
     def __repr__(self):
         return "Bandit, level {} (HP {}/{}, A {}, D {})".format(self.level, self.current_health, self.max_health,

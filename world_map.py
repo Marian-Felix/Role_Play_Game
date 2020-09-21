@@ -3,12 +3,13 @@ from characters import *
 from items import *
 # todo build battle mechaanism + menu
 
+
 class Vertex:
-    def __init__(self, value, description="Nothing to see ...", engagement=None):
+    def __init__(self, value, description="Nothing to see ...", interact=None):
         self.value = value
         self.edges = []
         self.description = description
-        self.engagement = engagement
+        self.interact = interact
 
     def __repr__(self):
         return self.value
@@ -24,6 +25,7 @@ class Graph:
     def __init__(self):
         self.graph_dict = {}
         self.current_location_global = None
+        self.is_new_game = True
 
     def add_vertex(self, *node):
         for node in node:
@@ -34,20 +36,24 @@ class Graph:
         self.graph_dict[to_node.value].add_edge(from_node.value)
 
     def explore_world(self):
-        hero_name = None
-        while not hero_name:
-            hero_name = input("Greetings, traveller! What is your name?\n")
-        time.sleep(0.4)
-        print("\nWelcome, {}! Use numbers to walk around and explore.  \n"
-              "Hint: Examine the situation before you take action.\n".format(hero_name))
+        if self.is_new_game:
+            hero_name = None
+            while not hero_name:
+                hero_name = input("Greetings, traveller! What is your name?\n")
+            time.sleep(0.4)
+            print("\nWelcome, {}! Use numbers to walk around and explore.  \n"
+                  "Hint: Examine the situation before you take action.\n".format(hero_name))
+            confirm()
+            global hero
+            hero = Hero(hero_name)
+            current_location = "Village center"
+            self.current_location_global = "Village center"
+            print("\nYou find yourself at the {0}. \nGood luck, adventurer!".format(current_location))
+        elif not self.is_new_game:
+            current_location = "Village: Temple"
+            self.current_location_global = "Village: Temple"
         confirm()
-        current_location = "Village center"
-        self.current_location_global = "Village center"
-        global hero
-        hero = Hero(hero_name)
-        print("\nYou find yourself at the {0}. \nGood luck, adventurer!".format(current_location))
-        confirm()
-
+        self.is_new_game = False
         while True:
             explore_site(self.graph_dict[current_location])
             node = self.graph_dict[current_location]
@@ -85,7 +91,8 @@ class Graph:
 
 def explore_site(current_location):
     while True:
-        exp_choice = check_int_input([1,2,3,4], "\n*** Main menu ***\n(1) Travel\n(2) Examine\n(3) Interact\n(4) Hero menu")
+        exp_choice = check_int_input([1,2,3,4], "\n*** Main menu ***\n(1) Travel\n(2) Examine\n(3) Interact\n"
+                                                "(4) Hero menu")
         if exp_choice == 1:
             return
         if exp_choice == 2:
@@ -94,7 +101,7 @@ def explore_site(current_location):
                 continue
         if exp_choice == 3:
             try:
-                current_location.engagement()
+                current_location.interact()
             except TypeError:
                 print("\nNothing happens ... ")
                 confirm()
@@ -134,7 +141,7 @@ def check_int_input(valid_choices, terminal_prompt):
 
 def hero_menu_choices():
     while True:
-        print(hero)
+        hero.print_stats()
         hero_choice = check_int_input([1,2,3,4,5], "\n*** Hero ***\n(1) Equip Item\n(2) Unequip Item\n(3) Use Potion"
                                                    "\n(4) Show Map\n(5) Return\n")
         if hero_choice == 1:
@@ -179,19 +186,7 @@ def hero_menu_choices():
                 print("\nYou don't have anything equipped!")
                 confirm()
         if hero_choice == 3:
-            if hero.items["potion"] < 1:
-                print("\nYou don't have any potions!")
-                confirm()
-                return
-            elif hero.current_health == hero.max_health:
-                print("\nYou are already at full health!")
-                confirm()
-                return
-            elif hero.items["potion"] >= 1:
-                hero.items["potion"] -= 1
-                hero.replenish()
-                print("\nYou used a potion. You feel replenished!")
-                confirm()
+            hero.use_potion()
         if hero_choice == 4:
             print_map()
             confirm()
@@ -231,22 +226,56 @@ def time_delay_txt(text):
 
 
 def battle(opponent):
-    print("\n",16*"*"," BATTLE ", 16*"*", "\n {}".format(opponent))
+    print("\n",16*"*"," BATTLE ", 16*"*", "\n {} vs. {}".format(hero, opponent))
+    confirm()
     while True:
-        battle_choice = check_int_input([1,2,3,4], "*** Battle! ***")
+        print()
+        battle_choice = check_int_input([1,2,3,4], "*** Battle! ***\nYou:   {}\nEnemy: {}\n(1) Attack\n(2) Risk Attack\n(3) Use Potion\n(4) Retreat".format(hero.return_stats(), opponent.return_stats()))
         if battle_choice == 1:
             hero.attack((opponent))
+        if battle_choice == 2:
+            hero.risk_attack(opponent)
+        if battle_choice == 3:
+            hero.use_potion()
+        if battle_choice == 4:
+            print("{} is trying to escape battle!".format(hero.name))
+            time.sleep(0.6)
+            if randint(0,10) in range(0,8):
+                print("Phew! You retreated succesfully.")
+                return
+            else:
+                print("No Chance to retreat!")
+        if opponent.is_knocked_out:
+            print("{} is defeated!".format(opponent.name))
+            confirm()
+            return
+        opponent_turn(opponent)
+        if hero.is_knocked_out:
+            hero_dies()
 
-    # Neues Untermenü:
-    # "*** Battle! ***"
-    # (1) Attack
-    # (2) Risk Attack
-    # (3) Potion
-    # (4) Retreat
 
-    # Risk Attack = 50% Trefferchance von normaler Attack, aber dann doppelter Schaden
-    # Retreat-Chance berechnet sich aus Level-Unterschied zw. Gegner und Held
-    # wenn man stirbt, erwacht man wieder im Tempel
+def opponent_turn(opponent):
+    if randint(0,10) in range(7):
+        opponent.attack(hero)
+    else:
+        opponent.risk_attack(hero)
+
+
+def hero_dies():
+    print("You have been knocked out!")
+    confirm()
+    time.sleep(1.5)
+    print(". . . ")
+    time.sleep(1.5)
+    print(". . . ")
+    time.sleep(1.5)
+    print(". . . ")
+    time.sleep(2)
+    print(" You wake up at the village temple. Everything is dizzy and blurry ... ")
+    hero.is_knocked_out = False
+    confirm()
+    hero.replenish()
+    world_map.explore_world()
 
 
 class Location_Temple():
@@ -313,6 +342,10 @@ class Location_LowerRoad():
             time_delay_txt(self.text)
             self.nr_replies = 1
             battle(banditLvl1_1)
+            print("\nYou found some useful things in your opponent's pockets!")
+            hero.put_in_inventory("potion")
+            hero.put_in_inventory(tunica2)
+            confirm()
             return
 
 
@@ -322,6 +355,7 @@ npc_temple = Location_Temple()
 npc_sherrif = Location_Sherrif()
 club1 = Spiked_club()
 tunica1 = Leather_tunica()
+tunica2 = Leather_tunica()
 lowerRoad = Location_LowerRoad()
 banditLvl1_1 = Bandit(1)
 
