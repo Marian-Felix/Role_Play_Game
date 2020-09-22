@@ -40,6 +40,8 @@ class Graph:
             hero_name = None
             while not hero_name:
                 hero_name = input("Greetings, traveller! What is your name?\n")
+                while len(hero_name) > 15:
+                    hero_name = input("Greetings, traveller! What is your name? (max. 15 characters)\n")
             time.sleep(0.4)
             print("\nWelcome, {}! Use numbers to walk around and explore.  \n"
                   "Hint: Examine the situation before you take action.\nYou can consult your"
@@ -657,7 +659,7 @@ village = Vertex("Village center", "You're standing at the main square of this l
                                    "\nAn old man is sitting under the big solitary lime tree.",
                  lambda: print_engagement("\nYou approach the old man.\n'Want to buy an apple?"
                                           "\nOh ... you are not from here."
-                                          "\nIf you came to help, the Sherrif might want to talk to you\nBut be "
+                                          "\nIf you came to help, the Sherrif might want to talk to you.\nBut be "
                                           "persistent, he might not hire you on your first attempt.'"))
 marketplace = Vertex("Village: Marketplace", "A bustling, colorful marketplace with traders and craftsmen shouting and "
                                              "haggling.\nThis seems like a nice place for a bargain.", lambda: location_marketplace.interact())

@@ -52,7 +52,7 @@
  [],
  False,
  False,
- 1600777186,
+ 1600778201,
  [('run.exe',
    'c:\\users\\marian '
    'bachmaier\\appdata\\local\\programs\\python\\python38\\lib\\site-packages\\PyInstaller\\bootloader\\Windows-64bit\\run.exe',
