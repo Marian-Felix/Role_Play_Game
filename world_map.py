@@ -563,8 +563,8 @@ class Location_Cave:
 
 class Location_Altar:
     def __init__(self):
-        self.quest = 1
-        self.nr_replies = 2
+        self.quest = 0
+        self.nr_replies = 0
         self.text = ""
 
     def interact(self):
