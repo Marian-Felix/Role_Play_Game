@@ -66,16 +66,18 @@ class Hero(Character):
             "weapon": None,
             "armor": rags1,
             "artefact": None,
-            "potion": 2,
+            "potion": 1,
+            "money": 0
         }
         self.max_health_bonus = 0
         self.max_health = 50
         self.current_health = 30
         self.attack_dmg_bonus = 0
         self.defense = 0 + self.get_armor_defense()
-        self.attack_dmg = 50 + self.attack_dmg_bonus + self.get_weapon_damage()
+        self.attack_dmg = 5 + self.attack_dmg_bonus + self.get_weapon_damage()
         self.inventory = []
         self.is_knocked_out = False
+
 
 
     # __repr__ wandelt das items-dictionary erst in eine Liste um (List comprehension),
@@ -173,6 +175,10 @@ class Hero(Character):
         item_lost = self.inventory.pop(item_index)
         print("Lost '{}'".format(item_lost))
 
+    def get_money(self, money_amount):
+        print("You received money ({})".format(money_amount))
+        self.items["money"] += money_amount
+
     def use_potion(self):
         if self.items["potion"] < 1:
             print("\nYou don't have any potions!")
@@ -217,10 +223,10 @@ class Bandit(Character):
     def __init__(self, level):
         self.name = "Bandit"
         self.level = level
-        self.max_health = randint(27, 32) * level
+        self.max_health = randint(28, 32) * level
         self.current_health = self.max_health
-        self.attack_dmg = randint(5, 11) * level
-        self.defense = randint(2, 6) * level
+        self.attack_dmg = randint(11, 13) * level
+        self.defense = randint(5, 6) * level
         self.is_knocked_out = False
 
     def __repr__(self):
@@ -231,10 +237,24 @@ class Cultist(Character):
     def __init__(self, level):
         self.name = "Cultist"
         self.level = level
-        self.max_health = randint(20, 28) * level
+        self.max_health = randint(28, 33) * level
         self.current_health = self.max_health
-        self.attack_dmg = randint(4, 8) * level
-        self.defense = randint(0, 2) * level
+        self.attack_dmg = randint(11, 13) * level
+        self.defense = randint(2, 3) * level
+        self.is_knocked_out = False
+
+    def __repr__(self):
+        return "{}, level {} (HP {}/{}, A {}, D {})".format(self.name, self.level, self.current_health, self.max_health,
+                                                                self.attack_dmg, self.defense)
+
+class Demon(Character):
+    def __init__(self, level):
+        self.name = "Demon Boss"
+        self.level = level
+        self.max_health = 150 * level
+        self.current_health = self.max_health
+        self.attack_dmg = randint(30, 33) * level
+        self.defense = randint(0, 1) * level
         self.is_knocked_out = False
 
     def __repr__(self):

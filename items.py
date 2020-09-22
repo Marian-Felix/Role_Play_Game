@@ -83,7 +83,7 @@ class Woolen_rags(Armor):
 
 class Leather_tunica(Armor):
     def __init__(self):
-        self.a_defense = 4 + randint(0, 3)
+        self.a_defense = 4 + randint(0, 2)
         self.durability = 10 + randint(0, 20)
         self.is_broken = False
         self.name = "Leather Tunica"
@@ -99,7 +99,7 @@ class Chain_mail(Armor):
 
 class Breast_plate_armor(Armor):
     def __init__(self):
-        self.a_defense = 20 + randint(0, 10)
+        self.a_defense = 23 + randint(0, 2)
         self.durability = 25 + randint(0, 60)
         self.is_broken = False
         self.name = "Breast Plate Armor"

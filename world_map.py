@@ -42,7 +42,8 @@ class Graph:
                 hero_name = input("Greetings, traveller! What is your name?\n")
             time.sleep(0.4)
             print("\nWelcome, {}! Use numbers to walk around and explore.  \n"
-                  "Hint: Examine the situation before you take action.\n".format(hero_name))
+                  "Hint: Examine the situation before you take action.\nYou can consult your"
+                  " map and character stats in the hero menu.\n".format(hero_name))
             confirm()
             global hero
             hero = c.Hero(hero_name)
@@ -132,9 +133,9 @@ def check_int_input(valid_choices, terminal_prompt):
     while True:
         try:
             hero_choice = int(input(terminal_prompt))
-            return hero_choice
             if hero_choice not in valid_choices:
                 raise ValueError
+            return hero_choice
         except ValueError:
             print("\n*** Wrong input. Enter a valid number. ***")
 
@@ -245,7 +246,7 @@ def battle(opponent):
         if battle_choice == 4:
             print("{} is trying to escape battle!".format(hero.name))
             time.sleep(0.6)
-            if randint(0,10) in range(0,8):
+            if randint(0,10) in range(0,3):
                 print("Phew! You retreated successfully.")
                 return
             else:
@@ -287,14 +288,80 @@ def print_quest(text):
     time_delay_txt(text)
 
 
-class Location_Temple():
+class Location_Temple:
     def interact(self):
         print("\nYou dive into the pulsing temple waters. You feel refreshed!")
         hero.replenish()
         confirm()
 
+class Location_Marketplace:
+    def interact(self):
+        while True:
+            trade_choice = check_int_input([1, 2, 3], "\n*** Trade ***\nYour money: {}\n(1) Buy Potion (cost: 25)"
+                                                      "\n(2) Sell items\n(3) Return".format(hero.items["money"]))
+            if trade_choice == 1:
+                if hero.items["money"] >= 25:
+                    hero.items["money"] -= 25
+                    hero.items["potion"] += 1
+                    print("\nPotions + 1\n'Thank you for you purchase!'")
+                    confirm()
+                    continue
+                else:
+                    print("\nYou don't have enough money!")
+                    confirm()
+                    continue
+            if trade_choice == 2:
+                while True:
+                    if hero.inventory:
+                        while True:
+                            print("\n*** Sell ***\nYour inventory:")
+                            print_inventory()
+                            valid_choices_list = [i + 1 for i in range(len(hero.inventory) + 1)]
+                            print("({}) Return".format(valid_choices_list[-1]))
+                            try:
+                                sell_choice = int(input())
+                                if sell_choice not in valid_choices_list:
+                                    raise ValueError
+                                break
+                            except ValueError:
+                                print("\n*** Wrong input. Enter a valid number. ***")
+                        if sell_choice == valid_choices_list[-1]:
+                            break
+                        sold_item_value = hero.inventory[sell_choice-1].get_value()
+                        sold_item = hero.inventory[sell_choice-1]
+                        print("\n*** Sell {} for {}? ***\n(1) Yes\n(2) No".format(sold_item, sold_item_value))
+                        while True:
+                            sell_confirmation = check_int_input([1,2,], "")
+                            if sell_confirmation == 1:
+                                print("Sold {}!".format(sold_item))
+                                hero.get_money(sold_item_value)
+                                hero.inventory.pop(sell_choice-1)
+                                confirm()
+                                break
+                            if sell_confirmation == 2:
+                                break
+                    else:
+                        print("\nYour inventory is empty. You have nothing to sell!")
+                        confirm()
+                        break
 
-class Location_Sherrif():
+            # def equip_item(self, item_from_inventory):  # index in inventory list
+            #     temp = self.inventory.pop(item_from_inventory)
+            #     # self.inventory.pop(item_from_inventory)
+            #     if self.items[temp.type] is not None:
+            #         self.put_in_inventory(
+            #             self.items[temp.type])  # place equipped item with the same type as new one in inventory
+            #         self.inventory.sort(key=get_item_sort_type)  # sort inventory
+            #     self.items[temp.type] = temp
+            #     print("Equipped '{}'".format(temp))
+            #     self.update_attack_dmg()
+            #     self.update_armor_defense()
+
+            if trade_choice == 3:
+                return
+
+
+class Location_Sherrif:
     def __init__(self):
         self.quest = 0
         self.nr_replies = 0
@@ -318,9 +385,9 @@ class Location_Sherrif():
             confirm()
             return
         if self.quest == 0 and self.nr_replies == 2:
-            self.text = "\n'Alright!! You are one of the stubborn kind, aren't you? What's your name? {}? I'll tell you " \
-                        "what.\nYou are lost or bored or whatever, and I keep losing men on the road to the north \n"\
-                        "and I don't know why. Tell me what's going on in the Dark Forest and I will reward you." \
+            self.text = "\n'Alright!! You are one of the stubborn kind, aren't you? What's your name? {}? I'll tell " \
+                        "you what.\nYou are lost or bored or whatever, and I keep losing men on the road to the north " \
+                        "\n and I don't know why. Tell me what's going on in the Dark Forest and I will reward you." \
                         "\n\n Sigh ... you're completely unarmed! Here, take these ... " \
                         "the last owner has no more use for it'.\n".format(hero.name)
             print_quest(self.text)
@@ -331,6 +398,12 @@ class Location_Sherrif():
             confirm()
             print("\nHint: You can manage your items in the Hero menu! Try to equip your new items.")
             confirm()
+            print("\nHint: If you are not feeling well, you might find help in the temple.\nIf you want to trade, "
+                  "the marketplace is your place to be.")
+            confirm()
+            world_map.add_edge(village, df_lowerRoad)
+            print("\nHint: New waypoint added to 'Village center'")
+            confirm()
             return
         if self.quest == 1 and self.nr_replies == 0:
             self.text = "\n'Come back if you know more about what's going on in the Dark Forest!'"
@@ -339,16 +412,42 @@ class Location_Sherrif():
             return
         if self.quest == 1 and self.nr_replies == 1:
             self.text = "\n'You went to the forest and came back alive? Not bad.\nWhat do you say? A cult? The big " \
-                        "Tree ... the Evergreen Tree? This is where our ancestors used to bury there dead ...\n It was " \
-                        "BURNING? I have to think about this. Take this and - please get back to me.'"
+                        "Tree ... the Evergreen Tree? \nThis is where our ancestors used to bury their dead ..." \
+                        "\nIt was BURNING? I have to think about this. \nTake this and - please get back to me soon.'"
             print_quest(self.text)
             print()
-            hero.put_in_inventory("potion")
+            hero.get_money(45)
             confirm()
             self.nr_replies = 2
+            self.quest = 2
+            return
+        if self.quest == 2 and self.nr_replies == 2:
+            self.text = "\nOK. Next to the Lower Road in the Dark Forest, there's a hidden cave. " \
+                        "\nWe have to restore the sanctity of this forest if we want peace." \
+                        "\nFind the magic orb in the cave and place it back on the forest altar.\n" \
+                        "\nMake sure to prepare yourself before you head out again: Buy potions at the marketplace!\n" \
+                        "You can also sell stuff that you don't need. And pay a visit to the temple if you are hurt ..."
+            print_quest(self.text)
+            self.nr_replies = 3
+            confirm()
+            print("\nOne more thing! Take this sword. It is the sword of my grandma. \nShe fought many great"
+                  " battles with it! She got it for her 75th birthday last summer. \nGood luck!")
+            hero.put_in_inventory(sword1)
+            world_map.add_edge(df_lowerRoad, df_cave)
+            confirm()
+            print("Hint: New waypoint added to 'Dark Forest: Lower Road'")
+            confirm()
+            return
+        if self.quest == 2 and self.nr_replies == 3:
+            self.text = "\nDid you go to the cave in the Dark Forest and afterwards to the nearby altar already?" \
+                        "\nHurry!"
+            print_quest(self.text)
+            confirm()
+            return
 
 
-class Location_LowerRoad():
+
+class Location_LowerRoad:
     def __init__(self):
         self.quest = 1
         self.nr_replies = 0
@@ -367,21 +466,20 @@ class Location_LowerRoad():
                         "You found some useful things in your opponent's pockets!"
             print(self.text)
             hero.put_in_inventory("potion")
-            hero.put_in_inventory(tunica2)
+            hero.put_in_inventory(axe1)
             self.nr_replies = 2
             confirm()
             print("\nYou defended yourself, but you're none the wiser about this place. "
                   "\nYou better follow your nose - is there a fire somewhere near?")
             confirm()
             return
-        # if self.quest == 1 and self.nr_replies == 2:
-        #     self.text = ""
-        #     print(self.text)
-        #     confirm()
-        #     return
+        if self.quest == 1 and self.nr_replies == 2:
+            print("\nYou better follow your nose - is there a fire somewhere near?")
+            confirm()
+            return
 
 
-class Location_BurningTree():
+class Location_BurningTree:
     def __init__(self):
         self.quest = 1
         self.nr_replies = 0
@@ -398,7 +496,7 @@ class Location_BurningTree():
             print("\nTwo of the bigger guys don't seem to like you intruding. You can surely take them - one by one!")
             confirm()
             battle(cultistlvl1_1)
-            print("\nAs the first one tumbles to the ground, the other cultist is charging at you!")
+            print("\nThe other cultist is charging at you!")
             confirm()
             battle(cultistlvl1_2)
             self.nr_replies = 1
@@ -411,28 +509,126 @@ class Location_BurningTree():
             hero.put_in_inventory((club2))
             confirm()
             self.nr_replies = 2
+            location_sherrif.quest = 1
+            location_sherrif.nr_replies = 1
             return
         if self.quest ==1 and self.nr_replies == 2:
             print("\nThe Sherrif might be interested to hear what happened here ...")
             confirm()
-            if location_sherrif.quest == 1 and location_sherrif.nr_replies == 0:
-                location_sherrif.nr_replies = 1
             return
+
+class Location_Cave:
+    def __init__(self):
+        self.quest = 0
+        self.nr_replies = 0
+        self.text = ""
+    def interact(self):
+        if self.quest == 0 and self.nr_replies == 0:
+            self.text = ("\n You step into the cave. A narrow, twisted tunnel is spiraling down towards the main chamber."
+                         "\nThere's a light blue glow to this cave, somewhat calming and frightening at once."
+                         "\nBut ... are you alone down here?")
+            print_quest(self.text)
+            confirm()
+            print("\nA cultist is charging at you!")
+            confirm()
+            battle(cultistlvl1_3)
+            print("\nThere is another one coming!")
+            confirm()
+            battle(cultistlvl1_4)
+            print("\nYou loot the surroundings.")
+            hero.put_in_inventory("potion")
+            hero.put_in_inventory(breastPlate1)
+            confirm()
+            print("\nThe magic orb that you are looking for should be somewhere here ... "
+                  "\nWill you move forward to the next chamber? "
+                  "\nYou have a feeling that something big is awaiting you there ...")
+            self.nr_replies = 1
+            confirm()
+            return
+        if self.quest == 0 and self.nr_replies == 1:
+            self.text = "\nYou enter the next room: Whatever demon the cultists summoned at their ritual, it is " \
+                        "standing in front of you. \nYou are thinking: 'If I was in a computer game, this would " \
+                        "definitely be a boss fight!'"
+            print_quest(self.text)
+            confirm()
+            battle(demon1)
+            print("\nThe magic orb is lying before you! You are grabbing it and back out of the cave ... pheeeeew!")
+            confirm()
+            self.nr_replies = 2
+            location_altar.quest = 1
+            return
+        if self.quest == 0 and self.nr_replies == 2:
+            print("\nYou got the magic orb. No need to stay any longer, bring it to the altar!")
+            return
+
+class Location_Altar:
+    def __init__(self):
+        self.quest = 1
+        self.nr_replies = 2
+        self.text = ""
+
+    def interact(self):
+        if self.quest == 0 and self.nr_replies == 0:
+            self.text = "\nSomething is missing on this altar ... maybe this can be fixed later."
+            print(self.text)
+            confirm()
+            return
+        if self.quest == 1 and self.nr_replies == 0:
+            self.text = "\nAs you stand before the altar, the magic orb in your hand starts pulsating. \nYou hear " \
+                        "angelic, distant voices, getting louder and louder as you move closer to the altar."
+            print_quest(self.text)
+            confirm()
+            self.nr_replies = 1
+            return
+        if self.quest == 1 and self.nr_replies == 1:
+            self.text = "\nYou place the magic orb on the altar's socket. Waves of blue light are whirling around you." \
+                        "\n'Mighty {}! You brought the orb back! I have an important message for you, written in stone" \
+                        "\n on this ancient table .... take a look ...'".format(hero.name)
+            print_quest(self.text)
+            confirm()
+            self.nr_replies = 2
+            return
+        if self.quest == 1 and self.nr_replies == 2:
+            self.text = "\nAn inscription is magically appearing on the altar. The letters say:" \
+                        "\nThis is a note from the developer. You reached the end of the content." \
+                        "\n Feel free to traverse through the rest of the map, but be aware: " \
+                        "\n There is just nothing going on there. \nThank you for playing!"
+            print_quest(self.text)
+            world_map.add_edge(df_lowerRoad, df_upperRoad)
+            confirm()
+            print("\nHint: New waypoints added.")
+            confirm()
+            self.nr_replies = 3
+            return
+        if self.quest == 1 and self.nr_replies == 3:
+            print("\nThank you for playing! :)")
+            confirm()
+            return
+
+
+
+
+
 
 
 
 # instances by location
 # village temple
 location_temple = Location_Temple()
+
 # village sherrif
 location_sherrif = Location_Sherrif()
 club1 = i.Spiked_club()
 tunica1 = i.Leather_tunica()
+sword1 = i.Sword()
+
+# village marketplace
+location_marketplace = Location_Marketplace()
 
 # Dark Forest: Lower Road
 location_lowerRoad = Location_LowerRoad()
 banditLvl1_1 = c.Bandit(1)
-tunica2 = i.Leather_tunica()
+axe1 = c.Lumberjack_axe()
 
 # Dark Forest: Burning Tree
 location_burningTree = Location_BurningTree()
@@ -441,7 +637,15 @@ cultistlvl1_2 = c.Cultist(1)
 club2 = i.Spiked_club()
 rags2 = i.Woolen_rags()
 
+# Dark Forest: Cave
+location_cave = Location_Cave()
+cultistlvl1_3 = c.Cultist(1)
+cultistlvl1_4 = c.Cultist(1)
+demon1 = c.Demon(1)
+breastPlate1 = c.Breast_plate_armor()
 
+# Dark Forest: Altar
+location_altar = Location_Altar()
 
 # instantiate world map as graph
 world_map = Graph()
@@ -452,21 +656,25 @@ village = Vertex("Village center", "You're standing at the main square of this l
                                    " the bells ringing. The wind is blowing leaves over the white gravel plain. "
                                    "\nAn old man is sitting under the big solitary lime tree.",
                  lambda: print_engagement("\nYou approach the old man.\n'Want to buy an apple?"
-                                          "\nOh ... you are not from here. Stay in the village. Don't be stupid ... "
-                                          "\nIf you came to help, the sherrif might want to talk to you'"))
+                                          "\nOh ... you are not from here."
+                                          "\nIf you came to help, the Sherrif might want to talk to you\nBut be "
+                                          "persistent, he might not hire you on your first attempt.'"))
 marketplace = Vertex("Village: Marketplace", "A bustling, colorful marketplace with traders and craftsmen shouting and "
-                                             "haggling.\nThis seems like a nice place for a bargain.")
+                                             "haggling.\nThis seems like a nice place for a bargain.", lambda: location_marketplace.interact())
 temple = Vertex("Village: Temple", "You grasp a glimpse of the sanctity of this place, as your eyes wander \nover the "
                                    "ancient marble sculptures. \nThe waters here are said to have healing powers.", lambda: location_temple.interact())
-sherrif = Vertex('Village: Sherrif\'s Office', "The sherrif looks busy. Law and order lie in his hands.", lambda: location_sherrif.interact())
+sherrif = Vertex('Village: Sherrif\'s Office', "The Sherrif looks busy. Law and order lie in his hands.", lambda: location_sherrif.interact())
 # level1
-df_lowerRoad = Vertex("Dark Forest: Lower Road", "Leaves crunch underfoot, while the sound of birds chirping dies away"
+df_lowerRoad = Vertex("Dark Forest: Lower Road", "Leaves crunch underfoot"
                                                  " with every step that leads you \ndeeper under the thickening "
                                                  "canopy. A scent of burned wood lies in the air."
                                                  " \nBut it's not wood alone "
                                                  "... you know this ... hair, fingernails?\nFlesh?", lambda: location_lowerRoad.interact())
-df_cave = Vertex("Dark Forest: Spooky Cave")
-df_altar = Vertex("Dark Forest: Altar")
+df_cave = Vertex("Dark Forest: Spooky Cave","Before you lies the entrance of this weird cave the Sherrif told you "
+                                            "about."
+                                            "\nWill you dare to enter it?", lambda: location_cave.interact())
+df_altar = Vertex("Dark Forest: Altar","\nThis is an altar of some sort ... it looks a bit dull. It seems that there "
+                                       "is something missing.", lambda: location_altar.interact())
 df_burningTree = Vertex("Dark Forest: Burning Tree", "As you follow the scent of smoke through the undergrowth, you "
                                                      "reach a clearing: \nA giant tree is bursting into flames. \nFrom "
                                                      "your hideout, you watch a group of people in shabby robes "
@@ -500,12 +708,12 @@ world_map.add_vertex(lm_pass_entrance, lm_pass, lm_shelter, lm_deadEnd)  # level
 world_map.add_edge(village, marketplace)
 world_map.add_edge(village, temple)
 world_map.add_edge(village, sherrif)
-world_map.add_edge(village, df_lowerRoad)
+# world_map.add_edge(village, df_lowerRoad)
 # level1
 world_map.add_edge(df_lowerRoad, df_burningTree)
-world_map.add_edge(df_lowerRoad, df_cave)
+# world_map.add_edge(df_lowerRoad, df_cave)
 world_map.add_edge(df_lowerRoad, df_altar)
-world_map.add_edge(df_lowerRoad, df_upperRoad)
+# world_map.add_edge(df_lowerRoad, df_upperRoad)
 # level2
 world_map.add_edge(df_upperRoad, df_encampment)
 world_map.add_edge(df_upperRoad, df_crossroads)
@@ -520,4 +728,5 @@ world_map.add_edge(lm_pass_entrance, lm_pass)
 world_map.add_edge(lm_pass, lm_shelter)
 world_map.add_edge(lm_pass, lm_deadEnd)
 
+# execute main function
 world_map.explore_world()
