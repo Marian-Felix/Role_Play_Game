@@ -1,5 +1,5 @@
-__pycache__
 .idea
-build
-dist
-world_map.spec
+Python Code/__pycache__
+Python Code/build
+Python Code/dist
+Python Code/world_map.spec
