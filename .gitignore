@@ -1,4 +1,5 @@
 .idea
+.gitignore
 Python Code/__pycache__
 Python Code/build
 Python Code/dist
