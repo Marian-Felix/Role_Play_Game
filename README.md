@@ -18,8 +18,8 @@ a diverting text-based role-play-game written in Python 3.
 1. __Python Code__: the folder `Python Code` contains the following script files:
     * __world_map.py__:  
             - game mechanics  
-            - contains the main code which imports the files 'characters.py' and 'items.py'  
-            - contains the graph network of  the game world and the classes of associated world locations
+            - contains the main code which imports the files 'characters.py' and 'items.py' and instantiates their classes  
+            - contains the graph network of  the game world and the classes of associated world locations  
             - contains asscociated helper functions  
           
     * __characters.py__:  
