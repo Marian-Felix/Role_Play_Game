@@ -16,21 +16,21 @@ a diverting text-based role-play-game written in Python 3.
 ## Content of the repository
 
 1. __Python Script__: the folder `Python Script` contains the following script files:
-    * 'world_map.py':  
+    * __world_map.py__:  
             - game mechanics  
             - contains the main code which imports the files 'characters.py' and 'items.py'  
             - contains the graph network of  the game world and the classes of associated world locations
             - contains asscociated helper functions  
           
-    * 'characters.py':  
+    * __characters.py__:  
             - contains the 'Character'-superclass and the derived hero-class and opponent-classes  
             - contains associated helper methods  
-    * 'items.py':  
+    * __items.py__:  
             - contains classes of items whose instances can be 'used' by the hero class  
            
 
 2. __Compiled Game__: the folder `Compiled Game` contains the files after compilation using 'pyinstaller' in the 'Bash'-shell:
-    * 'world_map.exe':  
+    * __world_map.exe__:  
             - execute this file to run the compiled gamethods  
     * additional files: 
             - misc. files created during compilation  
