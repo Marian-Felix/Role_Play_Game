@@ -32,7 +32,7 @@ a diverting text-based role-play-game written in Python 3.
 2. __Compiled Game__: the folder `Compiled Game` contains the files after compilation using 'pyinstaller' in the 'Bash'-shell:
     * __world_map.exe__:  
             - execute this file to run the compiled game  
-    * additional files: 
+    * additional files:  
             - misc. files created during compilation  
             
         
