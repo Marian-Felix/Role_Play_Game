@@ -15,7 +15,7 @@ a diverting text-based role-play-game written in Python 3.
 
 ## Content of the repository
 
-1. __Python Code__: the folder `Python Script` contains the following script files:
+1. __Python Code__: the folder `Python Code` contains the following script files:
     * __world_map.py__:  
             - game mechanics  
             - contains the main code which imports the files 'characters.py' and 'items.py'  
