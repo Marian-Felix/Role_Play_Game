@@ -9,7 +9,7 @@ a diverting text-based role-play-game written in Python 3.
 #### Implementation:
 -  Virtual world: Modelled as an undirected graph network with the nodes as world locations.
     More edges are added as the player advances in the story
-- Game mechanics: Instances of characters and world locations call each other's class methods, directly or indirectly via lambda functions  
+- Game mechanics: Instances of characters and world locations call each other's class methods, directly - or indirectly via lambda functions  
 
 
 
