@@ -346,19 +346,6 @@ class Location_Marketplace:
                         print("\nYour inventory is empty. You have nothing to sell!")
                         confirm()
                         break
-
-            # def equip_item(self, item_from_inventory):  # index in inventory list
-            #     temp = self.inventory.pop(item_from_inventory)
-            #     # self.inventory.pop(item_from_inventory)
-            #     if self.items[temp.type] is not None:
-            #         self.put_in_inventory(
-            #             self.items[temp.type])  # place equipped item with the same type as new one in inventory
-            #         self.inventory.sort(key=get_item_sort_type)  # sort inventory
-            #     self.items[temp.type] = temp
-            #     print("Equipped '{}'".format(temp))
-            #     self.update_attack_dmg()
-            #     self.update_armor_defense()
-
             if trade_choice == 3:
                 return
 
