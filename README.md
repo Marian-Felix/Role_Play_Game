@@ -11,7 +11,7 @@ a diverting text-based role-play-game written in Python 3.
     More edges are added as the player advances in the story
 - Game mechanics: Instances of characters and world locations call each other's class methods, directly - or indirectly via lambda functions  
 
-#### +++ To Do: Refactoring, splitting code into more files, set up a "main"-file, improve general clarity
+#### +++ To Do: Refactoring, splitting code into more files, set up a "main"-file, improve overall readability
 
 ## Content of the repository
 
