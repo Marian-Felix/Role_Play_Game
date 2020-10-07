@@ -34,6 +34,9 @@ a diverting text-based role-play-game written in Python 3.
             - execute this file to run the compiled game  
     * additional files:  
             - misc. files created during compilation  
+           
+
+3. __Screenshots__: the folder `Screenshots` contains some representative pictures of the gameplay (format = .png)
             
         
 ***
