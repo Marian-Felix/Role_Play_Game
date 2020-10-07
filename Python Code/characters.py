@@ -78,8 +78,6 @@ class Hero(Character):
         self.inventory = []
         self.is_knocked_out = False
 
-
-
     # __repr__ wandelt das items-dictionary erst in eine Liste um (List comprehension),
     # die Elemente der Liste werden anschließend durch .join() in einen Sting umgewandelt
     def __repr__(self):
