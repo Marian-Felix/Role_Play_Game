@@ -79,9 +79,7 @@ class Graph:
                     break
                 except ValueError:
                     print("\n*** Wrong input. Enter a valid number. ***")
-                # choice = int(input("\nWhere do you want to go? ")) # try except einfügen: wenn man keine Zahl einfügt
-
-                    # print("\n*** Wrong input. Enter a valid number. ***")
+                
             if choice == return_var_travel_menu:
                 continue
             current_location = node.edges[choice-1]
