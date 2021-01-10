@@ -1,6 +1,5 @@
 from random import randint
 from items import *
-# from world_map import confirm
 import time
 
 
@@ -33,8 +32,7 @@ class Character:
         time.sleep(0.4)
         random_number = randint(1, 100)
         if random_number in range(1,80):
-            opponent.lose_health(self.attack_dmg + (randint(0, 35) / 100) * self.attack_dmg)
-            # print("{} landed a hit!".format(self.name))
+            opponent.lose_health(self.attack_dmg + (randint(0, 35) / 100) * self.attack_dmg)        
         else:
             print("\n{} missed with the attack ...".format(self.name))
             confirm()
@@ -78,8 +76,7 @@ class Hero(Character):
         self.inventory = []
         self.is_knocked_out = False
 
-    # __repr__ wandelt das items-dictionary erst in eine Liste um (List comprehension),
-    # die Elemente der Liste werden anschließend durch .join() in einen Sting umgewandelt
+
     def __repr__(self):
         return "{}, level {} (HP {}/{}, A {}, D {})".format(self.name, self.level, self.current_health, self.max_health, self.attack_dmg, self.defense)
 
@@ -121,7 +118,6 @@ class Hero(Character):
 
     def equip_item(self, item_from_inventory):  # index in inventory list
         temp = self.inventory.pop(item_from_inventory)
-        # self.inventory.pop(item_from_inventory)
         if self.items[temp.type] is not None:
             self.put_in_inventory(
                 self.items[temp.type])  # place equipped item with the same type as new one in inventory
